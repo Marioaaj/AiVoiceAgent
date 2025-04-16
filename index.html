@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Voice Tool v2 - Order System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Keep custom styles for log messages and button states */
+        #log {
+            height: 300px; /* Fixed height scrollable log */
+            overflow-y: scroll;
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        #log p {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 0.375rem; /* rounded-md */
+            max-width: 85%; /* Prevent messages taking full width */
+            word-wrap: break-word; /* Wrap long words */
+        }
+        #log p strong { color: #555; }
+        #log p.user { background-color: #e0f2fe; /* light blue */ text-align: right; margin-left: auto; } /* Align user right */
+        #log p.bot { background-color: #f0fdf4; /* light green */ text-align: left; margin-right: auto; } /* Align bot left */
+        #log p.system { background-color: #f3f4f6; /* light gray */ text-align: center; color: #6b7280; font-style: italic; margin-right: auto; margin-left: auto; max-width: 100%;}
+
+        /* Custom button states */
+        #main-button.listening { background-color: #ef4444; } /* red-500 */
+        #main-button.listening:hover { background-color: #dc2626; } /* red-600 */
+        #main-button.processing { background-color: #facc15; } /* yellow-400 */
+        #main-button.processing:hover { background-color: #eab308; } /* yellow-500 */
+        #main-button:disabled { background-color: #9ca3af; cursor: not-allowed; } /* gray-400 */
+
+        /* Order Summary Styles */
+        #order-summary {
+             border: 1px solid #e5e7eb; /* gray-200 */
+             border-radius: 0.375rem; /* rounded-md */
+             padding: 1rem; /* p-4 */
+             background-color: #ffffff; /* bg-white */
+             height: 300px; /* Match chat log height */
+             display: flex;
+             flex-direction: column;
+        }
+        #order-list {
+             flex-grow: 1; /* Allow list to take available space */
+             overflow-y: auto; /* Scroll if list is long */
+             margin-bottom: 1rem; /* mb-4 */
+        }
+        #order-list li {
+            padding: 0.25rem 0; /* py-1 */
+            border-bottom: 1px dashed #d1d5db; /* border-b border-dashed border-gray-300 */
+        }
+         #order-list li:last-child {
+            border-bottom: none;
+        }
+        #order-total-section {
+            border-top: 2px solid #111827; /* border-t-2 border-gray-900 */
+            padding-top: 0.5rem; /* pt-2 */
+            font-weight: 600; /* font-semibold */
+            text-align: right;
+        }
+
+        /* Ensure body takes full height for centering */
+        html, body { height: 100%; margin: 0; }
+        body {
+            font-family: 'Inter', sans-serif; /* Use Inter font */
+        }
+    </style>
+    <link rel="preconnect" href="https://rsms.me/">
+     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body class="bg-gray-100 flex flex-col justify-center items-center min-h-screen p-4">
+
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl"> <h1 class="text-2xl font-bold text-center text-gray-800 mb-4">AI Agent Voice Tool & Order System</h1>
+
+        <div class="mb-4">
+            <label for="system-prompt" class="block text-sm font-medium text-gray-700 mb-1">System Prompt (Optional):</label>
+            <textarea id="system-prompt" rows="2" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., You are an order taking assistant for Mario's Kitchen. Be friendly and confirm additions/removals."></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="chat-container">
+                 <h2 class="text-lg font-semibold mb-2 text-center">Conversation</h2>
+                <div id="log">
+                    </div>
+            </div>
+
+            <div>
+                 <h2 class="text-lg font-semibold mb-2 text-center">Current Order</h2>
+                <div id="order-summary">
+                    <ul id="order-list" class="text-sm">
+                        <li class="text-gray-500 italic">Order is empty.</li>
+                    </ul>
+                    <div id="order-total-section">
+                        Total: $<span id="order-total">0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="controls text-center border-t pt-4">
+             <button id="main-button" class="px-4 py-2 mr-2 font-semibold text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out disabled:opacity-50">
+                🔌 Connect
+             </button>
+             <button id="disconnect-button" class="px-4 py-2 mr-2 font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out disabled:opacity-50" disabled>
+                🔌 Disconnect
+             </button>
+             <button id="export-button" class="px-4 py-2 font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out disabled:opacity-50 hidden">
+                📄 Export Order
+             </button>
+             <p id="status" class="mt-2 text-sm text-gray-600">Status: Disconnected</p>
+             <p id="ws-status" class="text-xs text-gray-500">WebSocket: Idle</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

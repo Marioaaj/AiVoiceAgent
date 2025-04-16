@@ -1,0 +1,5 @@
+Save these files as index.html, script.js, server.js, and style.css.
+Create a .env file in the same directory as server.js with your GEMINI_API_KEY=YOUR_API_KEY_HERE.
+Install dependencies: npm install ws @google/generative-ai dotenv
+Run the backend: node server.js ( In the terminal, ##run: node server.js## You should see WebSocket server started on port 8080. Keep this terminal running.)
+Open index.html in your browser.

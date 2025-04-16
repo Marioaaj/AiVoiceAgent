@@ -1,0 +1,100 @@
+/* style.css - Minimal CSS needed as Tailwind is used */
+
+/* Keep custom styles for log messages and button states if needed,
+   but Tailwind classes in the HTML handle most styling now. */
+
+   #log {
+    height: 300px; /* Fixed height scrollable log */
+    overflow-y: scroll;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    padding: 10px;
+    margin-bottom: 1rem; /* mb-4 */
+    background-color: #f9fafb; /* gray-50 */
+    border-radius: 0.375rem; /* rounded-md */
+}
+#log p {
+    margin-top: 0.25rem; /* my-1 */
+    margin-bottom: 0.25rem;
+    padding: 0.5rem; /* p-2 */
+    border-radius: 0.375rem; /* rounded-md */
+    max-width: 85%; /* Prevent messages taking full width */
+    word-wrap: break-word; /* Wrap long words */
+    line-height: 1.5; /* Add some line spacing */
+}
+#log p strong {
+    font-weight: 600; /* font-semibold */
+    color: #374151; /* gray-700 */
+    margin-right: 0.25rem;
+ }
+#log p.user {
+    background-color: #e0f2fe; /* Tailwind sky-100 */
+    text-align: right;
+    margin-left: auto; /* Push to right */
+    color: #0c4a6e; /* sky-900 */
+ }
+#log p.bot {
+    background-color: #f0fdf4; /* Tailwind green-50 */
+    text-align: left;
+    margin-right: auto; /* Push to left */
+    color: #14532d; /* green-900 */
+}
+#log p.system {
+    background-color: #f3f4f6; /* Tailwind gray-100 */
+    text-align: center;
+    color: #6b7280; /* gray-500 */
+    font-style: italic;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 100%;
+}
+
+/* Custom button states for visual feedback */
+#main-button.listening { background-color: #ef4444 !important; } /* red-500 */
+#main-button.listening:hover { background-color: #dc2626 !important; } /* red-600 */
+#main-button.processing { background-color: #facc15 !important; color: #422006 !important; } /* yellow-400, text-yellow-900 */
+#main-button.processing:hover { background-color: #eab308 !important; } /* yellow-500 */
+#main-button:disabled { background-color: #9ca3af !important; cursor: not-allowed !important; } /* gray-400 */
+#disconnect-button:disabled { background-color: #fda4af !important; cursor: not-allowed !important; } /* red-300 */
+
+
+/* Order Summary Styles */
+#order-summary {
+     border: 1px solid #e5e7eb; /* gray-200 */
+     border-radius: 0.375rem; /* rounded-md */
+     padding: 1rem; /* p-4 */
+     background-color: #ffffff; /* bg-white */
+     height: 300px; /* Match chat log height */
+     display: flex;
+     flex-direction: column;
+}
+#order-list {
+     flex-grow: 1; /* Allow list to take available space */
+     overflow-y: auto; /* Scroll if list is long */
+     margin-bottom: 1rem; /* mb-4 */
+}
+#order-list li {
+    padding: 0.25rem 0; /* py-1 */
+    border-bottom: 1px dashed #d1d5db; /* border-b border-dashed border-gray-300 */
+}
+ #order-list li:last-child {
+    border-bottom: none;
+}
+#order-total-section {
+    border-top: 2px solid #111827; /* border-t-2 border-gray-900 */
+    padding-top: 0.5rem; /* pt-2 */
+    font-weight: 600; /* font-semibold */
+    text-align: right;
+}
+
+
+/* Ensure body takes full height for centering */
+html, body { height: 100%; margin: 0; }
+body {
+    font-family: 'Inter', sans-serif; /* Use Inter font */
+    display: flex; /* Use flexbox for centering */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f3f4f6; /* bg-gray-100 */
+    padding: 1rem; /* p-4 */
+}
