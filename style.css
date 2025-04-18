@@ -97,4 +97,5 @@ body {
     align-items: center;
     background-color: #f3f4f6; /* bg-gray-100 */
     padding: 1rem; /* p-4 */
+    box-sizing: border-box;
 }

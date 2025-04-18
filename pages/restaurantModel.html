@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Voice Tool v2 - Order System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            important: true,
+            theme: {
+                extend: {
+                    colors: {
+                        'sky': {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        'emerald': {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Modern chat interface */
+        #log {
+            height: 400px !important;
+            overflow-y: scroll !important;
+            border: 1px solid #e5e7eb !important;
+            padding: 1rem !important;
+            margin-bottom: 1rem !important;
+            background-color: #ffffff !important;
+            border-radius: 0.75rem !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        }
+        #log p {
+            margin: 0.5rem 0 !important;
+            padding: 0.75rem !important;
+            border-radius: 1rem !important;
+            max-width: 85% !important;
+            word-wrap: break-word !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+        #log p strong { 
+            color: #374151 !important;
+            font-weight: 600 !important;
+            margin-right: 0.5rem !important;
+        }
+        #log p.user { 
+            background-color: #e0f2fe !important;
+            text-align: right !important;
+            margin-left: auto !important;
+            color: #0c4a6e !important;
+        }
+        #log p.bot { 
+            background-color: #f0fdf4 !important;
+            text-align: left !important;
+            margin-right: auto !important;
+            color: #14532d !important;
+        }
+        #log p.system { 
+            background-color: #f3f4f6 !important;
+            text-align: center !important;
+            color: #6b7280 !important;
+            font-style: italic !important;
+            margin: 0.75rem auto !important;
+            max-width: 100% !important;
+            font-size: 0.875rem !important;
+        }
+
+        /* Modern order summary */
+        #order-summary {
+            border: 1px solid #e5e7eb !important;
+            border-radius: 0.75rem !important;
+            padding: 1.25rem !important;
+            background-color: #ffffff !important;
+            height: 400px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        }
+        #order-list {
+            flex-grow: 1 !important;
+            overflow-y: auto !important;
+            margin-bottom: 1rem !important;
+            padding-right: 0.5rem !important;
+        }
+        #order-list li {
+            padding: 0.75rem 0 !important;
+            border-bottom: 1px dashed #d1d5db !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+        #order-list li:last-child {
+            border-bottom: none !important;
+        }
+        #order-total-section {
+            border-top: 2px solid #111827 !important;
+            padding-top: 1rem !important;
+            font-weight: 600 !important;
+            text-align: right !important;
+            font-size: 1.125rem !important;
+            color: #111827 !important;
+        }
+
+        /* Status indicators */
+        #status, #ws-status {
+            display: inline-flex !important;
+            align-items: center !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 9999px !important;
+            font-size: 0.875rem !important;
+            margin: 0.5rem !important;
+        }
+        #status {
+            background-color: #f3f4f6 !important;
+            color: #4b5563 !important;
+        }
+        #ws-status {
+            background-color: #e5e7eb !important;
+            color: #6b7280 !important;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Modern button styles */
+        .modern-button {
+            position: relative !important;
+            padding: 0.75rem 1.5rem !important;
+            font-weight: 600 !important;
+            border-radius: 0.75rem !important;
+            transition: all 0.2s ease-in-out !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+        .modern-button:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        }
+        .modern-button:active {
+            transform: translateY(0) !important;
+        }
+        .modern-button:focus {
+            outline: none !important;
+            ring: 2px !important;
+            ring-offset: 2px !important;
+        }
+        .modern-button:disabled {
+            opacity: 0.7 !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+        }
+
+        /* Enhanced system prompt input */
+        .prompt-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        #system-prompt {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 1rem !important;
+            border: 2px solid #e5e7eb !important;
+            border-radius: 0.75rem !important;
+            background-color: #ffffff !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            transition: all 0.2s ease-in-out !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+        #system-prompt:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+            outline: none !important;
+        }
+        #system-prompt::placeholder {
+            color: #9ca3af !important;
+        }
+
+        /* Layout adjustments */
+        .main-container {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            min-height: 100vh !important;
+            width: 100% !important;
+            padding: 2rem !important;
+            background-color: #f9fafb !important;
+            margin-top: 1rem;
+        }
+        .content-wrapper {
+            width: 100% !important;
+            max-width: 1200px !important;
+        }
+        .grid-container {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 2rem !important;
+        }
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/style.css">
+ 
+    <link rel="preconnect" href="https://rsms.me/">
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body>
+    <script src="/restaurantModel.js" defer></script>
+    <div class="main-container">
+        <div class="content-wrapper">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h1 class="text-3xl font-bold text-center text-gray-900 mb-6">AI Agent Voice Tool & Order System</h1>
+
+                <div class="prompt-container mb-8">
+                    <label for="system-prompt" class="block text-sm font-medium text-gray-700 mb-2">System Prompt (Optional):</label>
+                    <textarea id="system-prompt" rows="2" placeholder="e.g., You are an order taking assistant for Mario's Kitchen. Be friendly and confirm additions/removals."></textarea>
+                </div>
+
+                <div class="grid-container">
+                    <div class="chat-container">
+                        <h2 class="text-lg font-semibold mb-3 text-center text-gray-800">Conversation</h2>
+                        <div id="log"></div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-lg font-semibold mb-3 text-center text-gray-800">Current Order</h2>
+                        <div id="order-summary">
+                            <ul id="order-list" class="text-sm">
+                                <li class="text-gray-500 italic">Order is empty.</li>
+                            </ul>
+                            <div id="order-total-section">
+                                Total: $<span id="order-total">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="controls text-center border-t pt-8">
+                    <div class="flex flex-wrap justify-center gap-4 mb-6">
+                        <button id="main-button" class="modern-button bg-green-500 text-white hover:bg-green-600 focus:ring-green-500">
+                            🔌 Connect
+                        </button>
+                        <button id="disconnect-button" class="modern-button bg-red-500 text-white hover:bg-red-600 focus:ring-red-500" disabled>
+                            🔌 Disconnect
+                        </button>
+                        <button id="export-button" class="modern-button bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500 hidden">
+                            📄 Export Order
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <p id="status">Status: Disconnected</p>
+                        <p id="ws-status">WebSocket: Idle</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
